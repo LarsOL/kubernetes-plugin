@@ -1,19 +1,25 @@
 package org.csanchez.jenkins.plugins.kubernetes;
 
-import com.google.common.base.Preconditions;
-import hudson.Extension;
-import hudson.model.AbstractDescribableImpl;
-import hudson.model.Descriptor;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
+import org.csanchez.jenkins.plugins.kubernetes.model.TemplateEnvVar;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.common.base.Preconditions;
+
+import hudson.Extension;
+import hudson.model.AbstractDescribableImpl;
+import hudson.model.Descriptor;
 
 public class ContainerTemplate extends AbstractDescribableImpl<ContainerTemplate> implements Serializable {
+
+    private static final long serialVersionUID = 4212681620316294146L;
 
     public static final String DEFAULT_WORKING_DIR = "/home/jenkins";
 
@@ -41,17 +47,29 @@ public class ContainerTemplate extends AbstractDescribableImpl<ContainerTemplate
 
     private String resourceLimitMemory;
 
-    private final List<ContainerEnvVar> envVars = new ArrayList<ContainerEnvVar>();
+    private final List<TemplateEnvVar> envVars = new ArrayList<>();
+    private List<PortMapping> ports = new ArrayList<PortMapping>();
 
-    @DataBoundConstructor
+    private ContainerLivenessProbe livenessProbe;
+
+    @Deprecated
     public ContainerTemplate(String image) {
         this(null, image);
     }
 
-    ContainerTemplate(String name, String image) {
+    @DataBoundConstructor
+    public ContainerTemplate(String name, String image) {
         Preconditions.checkArgument(!StringUtils.isBlank(image));
         this.name = name;
         this.image = image;
+    }
+
+    public ContainerTemplate(String name, String image, String command, String args) {
+        Preconditions.checkArgument(!StringUtils.isBlank(image));
+        this.name = name;
+        this.image = image;
+        this.command = command;
+        this.args = args;
     }
 
     @DataBoundSetter
@@ -130,13 +148,30 @@ public class ContainerTemplate extends AbstractDescribableImpl<ContainerTemplate
         return alwaysPullImage;
     }
 
-    public List<ContainerEnvVar> getEnvVars() {
-        return envVars;
+    public List<TemplateEnvVar> getEnvVars() {
+        return envVars != null ? envVars : Collections.emptyList();
     }
 
     @DataBoundSetter
-    public void setEnvVars(List<ContainerEnvVar> envVars) {
+    public void setEnvVars(List<TemplateEnvVar> envVars) {
         this.envVars.addAll(envVars);
+    }
+
+
+    public ContainerLivenessProbe getLivenessProbe() { return livenessProbe; }
+
+    @DataBoundSetter
+    public void setLivenessProbe(ContainerLivenessProbe livenessProbe) {
+        this.livenessProbe = livenessProbe;
+    }
+
+    public List<PortMapping> getPorts() {
+        return ports != null ? ports : Collections.emptyList();
+    }
+
+    @DataBoundSetter
+    public void setPorts(List<PortMapping> ports) {
+        this.ports = ports;
     }
 
     public String getResourceRequestMemory() {

@@ -1,60 +1,40 @@
 package org.csanchez.jenkins.plugins.kubernetes;
 
-import hudson.Extension;
-import hudson.model.AbstractDescribableImpl;
-import hudson.model.Descriptor;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-@Deprecated
-/**
- * @deprecated Use ContainerEnvVar instead. This will be removed in future versions
- */
-public class PodEnvVar extends AbstractDescribableImpl<PodEnvVar> {
+import hudson.Extension;
+import hudson.model.Descriptor;
 
-    private String key;
-    private String value;
+/**
+ * Deprecated, use KeyValueEnvVar
+ */
+@Deprecated
+public class PodEnvVar extends KeyValueEnvVar {
+
+    private static final long serialVersionUID = 5426623531408300311L;
 
     @DataBoundConstructor
     public PodEnvVar(String key, String value) {
-        this.key = key;
-        this.value = value;
+        super(key, value);
     }
 
-    public String getKey() {
-        return key;
+    @Override
+    public String toString() {
+        return "PodEnvVar [getValue()=" + getValue() + ", getKey()=" + getKey() + "]";
     }
 
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    static List<ContainerEnvVar> asContainerEnvVar(List<PodEnvVar> list) {
-        return list.stream().map((var) -> new ContainerEnvVar(var.getKey(), var.getValue()))
-                .collect(Collectors.toList());
-    }
-
-    static List<PodEnvVar> fromContainerEnvVar(List<ContainerEnvVar> list) {
-        return list.stream().map((var) -> new PodEnvVar(var.getKey(), var.getValue())).collect(Collectors.toList());
+    public Descriptor<KeyValueEnvVar> getDescriptor() {
+        return new DescriptorImpl();
     }
 
     @Extension
-    public static class DescriptorImpl extends Descriptor<PodEnvVar> {
+    @Symbol("podEnvVar")
+    public static class DescriptorImpl extends Descriptor<KeyValueEnvVar> {
         @Override
         public String getDisplayName() {
-            return "Container Environment Variable";
+            return "Global Environment Variable (applied to all containers)";
         }
     }
 }

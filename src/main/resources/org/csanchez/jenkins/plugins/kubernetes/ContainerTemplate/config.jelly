@@ -7,11 +7,11 @@
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 
   <f:entry field="name" title="${%Name}">
-    <f:textbox/>
+    <f:textbox clazz="required"/>
   </f:entry>
 
   <f:entry field="image" title="${%Docker image}">
-    <f:textbox/>
+    <f:textbox clazz="required"/>
   </f:entry>
 
   <f:entry field="alwaysPullImage" title="${%Always pull image}">
@@ -58,6 +58,18 @@
 
     <f:entry field="resourceLimitMemory" title="${%Limit Memory}">
       <f:textbox/>
+    </f:entry>
+
+    <f:entry field="livenessProbe" title="${%Liveness Probe}">
+      <f:rowSet name="${field}">
+        <j:set var="descriptor" value="${attrs.propertyDescriptor ?: app.getDescriptorOrDie(descriptor.getPropertyTypeOrDie(instance,field).clazz)}" />
+        <j:set var="instance" value="${instance[field]}"/>
+        <st:include from="${descriptor}" page="${descriptor.configPage}" />
+      </f:rowSet>
+    </f:entry>
+    <f:entry title="${%PortMappings}" description="${%List of exposed ports}">
+      <f:repeatableHeteroProperty field="ports" hasHeader="true" addCaption="Add Port Mapping"
+                                    deleteCaption="Delete Port Mapping" />
     </f:entry>
 
   </f:advanced>
